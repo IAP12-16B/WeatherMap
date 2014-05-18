@@ -12,13 +12,13 @@ use kije\ImagIX\utils\Colors;
  */
 class Image
 {
-    const IMAGE_TYPE_GIF = 'gif';
-    const IMAGE_TYPE_JPEG = 'jpeg';
-    const IMAGE_TYPE_PNG = 'png';
-    const IMAGE_TYPE_WBMP = 'wbmp';
-    const IMAGE_TYPE_GD2 = 'gd2';
-    const IMAGE_TYPE_INTERLACED_JPEG = self::IMAGE_TYPE_JPEG;
-    const IMAGE_TYPE_TRANSPARENT_PNG = self::IMAGE_TYPE_PNG;
+    const IMAGE_TYPE_GIF = 0;
+    const IMAGE_TYPE_JPEG = 1;
+    const IMAGE_TYPE_PNG = 2;
+    const IMAGE_TYPE_WBMP = 3;
+    const IMAGE_TYPE_GD2 = 4;
+    const IMAGE_TYPE_INTERLACED_JPEG = 5;
+    const IMAGE_TYPE_TRANSPARENT_PNG = 6;
 
     /**
      * @var resource
@@ -70,11 +70,12 @@ class Image
         $return = null;
         if (is_file($file)) {
             switch (strtolower(pathinfo($file, PATHINFO_EXTENSION))) {
-                case self::IMAGE_TYPE_GIF:
-                case self::IMAGE_TYPE_JPEG:
-                case self::IMAGE_TYPE_PNG:
-                case self::IMAGE_TYPE_WBMP:
-                case self::IMAGE_TYPE_GD2:
+                case 'gif':
+                case 'jpeg':
+                case 'jpg':
+                case 'png':
+                case 'wbmp':
+                case 'gd2':
                     $return = imagecreatefromstring(file_get_contents($file));
                     break;
 
@@ -129,7 +130,7 @@ class Image
     }
 
     /**
-     * @param string $filetype
+     * @param int|string $filetype
      * @param null $filename
      * @param null $quality
      * @param null $filter
