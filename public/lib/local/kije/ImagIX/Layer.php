@@ -20,20 +20,20 @@ class Layer
     private $posY;
 
     /**
-     * @var Image image;
+     * @var Canvas image;
      */
-    private $image;
+    private $canvas;
 
     public function __construct(&$image = null, $posx = 0, $posy = 0, $width = 1, $height = 1)
     {
         if ($image) {
-            $this->image = $image;
+            $this->canvas = $image;
         } else {
-            $this->image = new Image($width, $height);
+            $this->canvas = new Canvas($width, $height);
         }
 
-        $this->width = ($width ? $width : $this->image->getWidth());
-        $this->height = ($height ? $height : $this->image->getHeight());
+        $this->width = ($width ? $width : $this->canvas->getWidth());
+        $this->height = ($height ? $height : $this->canvas->getHeight());
         $this->posX = $posx;
         $this->posY = $posy;
 
@@ -41,96 +41,32 @@ class Layer
     }
 
     /**
-     * @return Image
+     * @return Canvas
      */
-    public function getImage()
+    public function getCanvas()
     {
-        return $this->image;
+        return $this->canvas;
     }
 
     /**
-     * @param Image $image
+     * @param Canvas $image
      */
-    public function setImage($image)
+    public function setCanvas($image)
     {
-        $this->image = $image;
-    }
-
-    /**
-     * @return int
-     */
-    public function getHeight()
-    {
-        return $this->height;
-    }
-
-    /**
-     * @param int $height
-     */
-    public function setHeight($height)
-    {
-        $this->height = $height;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPosX()
-    {
-        return $this->posX;
-    }
-
-    /**
-     * @param int $posX
-     */
-    public function setPosX($posX)
-    {
-        $this->posX = $posX;
-    }
-
-    /**
-     * @return int
-     */
-    public function getWidth()
-    {
-        return $this->width;
-    }
-
-    /**
-     * @param int $width
-     */
-    public function setWidth($width)
-    {
-        $this->width = $width;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPosY()
-    {
-        return $this->posY;
-    }
-
-    /**
-     * @param int $posY
-     */
-    public function setPosY($posY)
-    {
-        $this->posY = $posY;
+        $this->canvas = $image;
     }
 
     /**
      * @throws Exception\LayerException
-     * @return Image Layer (with child layers) rendered as Image
+     * @return Canvas Layer (with child layers) rendered as Canvas
      */
     public function render()
     {
-        if (!$this->image) {
+        if (!$this->canvas) {
             throw new LayerException('No image set!');
         }
 
-        $gdImage = $this->image->getGdImage();
+        $gdImage = $this->canvas->getGdImage();
 
         ksort($this->childLayers);
 
@@ -153,9 +89,73 @@ class Layer
             );
         }
 
-        $returnImage = new Image();
+        $returnImage = new Canvas();
         $returnImage->setGdImage($gdImage);
         return $returnImage;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosX()
+    {
+        return $this->posX;
+    }
+
+    /**
+     * @param int $posX
+     */
+    public function setPosX($posX)
+    {
+        $this->posX = $posX;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosY()
+    {
+        return $this->posY;
+    }
+
+    /**
+     * @param int $posY
+     */
+    public function setPosY($posY)
+    {
+        $this->posY = $posY;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWidth()
+    {
+        return $this->width;
+    }
+
+    /**
+     * @param int $width
+     */
+    public function setWidth($width)
+    {
+        $this->width = $width;
+    }
+
+    /**
+     * @return int
+     */
+    public function getHeight()
+    {
+        return $this->height;
+    }
+
+    /**
+     * @param int $height
+     */
+    public function setHeight($height)
+    {
+        $this->height = $height;
     }
 
     public function addChildLayer($index, &$layer)
