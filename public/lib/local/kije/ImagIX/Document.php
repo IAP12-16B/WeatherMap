@@ -4,7 +4,7 @@
 namespace kije\ImagIX;
 
 
-class Image
+class Document
 {
 
 } 
