@@ -9,12 +9,15 @@ namespace kije\ImagIX;
  */
 class ImagIX
 {
+    private static $documents;
 
-    private $rootLayer;
 
-    public function __construct()
+    public static function createDocument($name, $width, $height)
     {
-        $this->rootLayer = new Layer(new Canvas(1200, 1200));
-        echo $this->rootLayer->render()->getPNG24();
+        if (!array_key_exists($name, self::$documents)) {
+            self::$documents[$name] = new Document($width, $height);
+        } else {
+            return self::$documents[$name];
+        }
     }
 } 

@@ -1,0 +1,78 @@
+{
+    "name": "Forecaster",
+    "version": "0.1",
+    "font": {
+        "name": "Montserrat",
+        "googleFontsURL": "https://fonts.googleapis.com/css?family=Montserrat:400,700",
+        "localFile": "font/Montserrat-Regular.ttf"
+    },
+    "map": "map.jpg",
+    "icons": {
+        "default": "default.png",
+        "weather": {
+            "1": "sunny.png",
+            "2": "cloudy.png",
+            "3": "rainy.png",
+            "4": "thunderstorm.png",
+            "5": "snowy.png"
+        },
+        "wind": "wind_arrow.png",
+        "pollen": {
+            "0": "",
+            "1": "pollen_low.png",
+            "2": "pollen_medium.png",
+            "3": "pollen_high.png"
+        }
+    },
+    "regions": {
+        "1": {
+            "name": "Genf",
+            "center": {
+                "x": 110,
+                "y": 975
+            }
+        },
+        "2": {
+            "name": "Wallis",
+            "center": {
+                "x": 610,
+                "y": 960
+            }
+        },
+        "3": {
+            "name": "Tessin",
+            "center": {
+                "x": 1280,
+                "y": 975
+            }
+        },
+        "4": {
+            "name": "Graubünden",
+            "center": {
+                "x": 1480,
+                "y": 580
+            }
+        },
+        "5": {
+            "name": "Zürich",
+            "center": {
+                "x": 1080,
+                "y": 290
+            }
+        },
+        "6": {
+            "name": "Bern",
+            "center": {
+                "x": 640,
+                "y": 540
+            }
+        },
+        "7": {
+            "name": "Basel",
+            "center": {
+                "x": 710,
+                "y": 180
+            }
+        }
+    }
+}

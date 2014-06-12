@@ -6,6 +6,10 @@ namespace kije\ImagIX;
 
 use kije\ImagIX\Exception\LayerException;
 
+/**
+ * Class Layer
+ * @package kije\ImagIX
+ */
 class Layer
 {
 
@@ -24,7 +28,7 @@ class Layer
      */
     private $canvas;
 
-    public function __construct(&$image = null, $posx = 0, $posy = 0, $width = 1, $height = 1)
+    public function __construct($posx = 0, $posy = 0, $width = 1, $height = 1, &$image = null)
     {
         if ($image) {
             $this->canvas = $image;
@@ -163,7 +167,9 @@ class Layer
         if (!array_key_exists($index, $this->childLayers)) {
             $this->childLayers[$index] = $layer;
         } else {
-            throw new LayerException('Child layer already exists at this index. Use replaceChildLayer() to replace it.');
+            throw new LayerException(
+                'Child layer already exists at this index. Use replaceChildLayer() to replace it.'
+            );
         }
     }
 
@@ -184,4 +190,23 @@ class Layer
             unset($this->childLayers[$index]);
         }
     }
-} 
+
+    public function __call($method, $args)
+    {
+        // Delegate draw methods
+        if (method_exists($this->canvas, $args)) {
+            return call_user_func_array(array($this->canvas, $method), $args);
+        }
+
+        return false;
+    }
+
+    public function __destruct() {
+        unset($this->canvas); // free
+    }
+
+    public static function fromFile($file) {
+        $img = Layer::fromFile($file);
+        return new self(0, 0, $img->getWidth(), $img->getHeight(), $img);
+    }
+}

@@ -33,7 +33,7 @@ class Colors
         $hex .= str_pad(dechex($g), 2, "0", STR_PAD_LEFT);
         $hex .= str_pad(dechex($b), 2, "0", STR_PAD_LEFT);
 
-        if ($a === false) {
+        if ($a !== false) {
             $hex .= str_pad(dechex($a), 2, "0", STR_PAD_LEFT);
         }
 

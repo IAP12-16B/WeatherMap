@@ -20,11 +20,5 @@ ini_set("log_errors", true);
 ini_set("error_log", PROJ_ROOT . "/var/log/php-error.log");
 
 
-//set Zend_Locale
-if (class_exists('Zend_Registry', false)) {
-    Zend_Registry::set('Zend_Locale', new Zend_Locale('de_CH')); // is that required in newer versions?
-}
-
-
 // includes
 require_once 'autoloader.php';
