@@ -4,7 +4,12 @@ namespace kije\Forecaster;
 
 
 use kije\Forecaster\CSV\Descriptor;
+use kije\Forecaster\Maps\AbstractMap;
+use kije\Forecaster\Maps\MapIterator;
+use kije\Forecaster\Maps\PollenMap;
 use kije\Forecaster\Maps\TemperatureMap;
+use kije\Forecaster\Maps\WeatherMap;
+use kije\Forecaster\Maps\WindMap;
 use kije\Forecaster\Themes\Theme;
 
 class Forecaster
@@ -53,13 +58,6 @@ class Forecaster
         $this->theme = $theme;
     }
 
-    public function getTempMap()
-    {
-        $this->readCSV();
-        $a = new TemperatureMap($this->theme, array_pop($this->csvData));
-        return $a->render();
-    }
-
     private function readCSV()
     {
         $this->csvData = array();
@@ -86,5 +84,28 @@ class Forecaster
                 }
             }
         }
+    }
+
+    /**
+     * @return AbstractMap[String][]
+     */
+    public function getMaps()
+    {
+        $this->readCSV();
+        $maps = array(
+            self::CSV_NAME_WEATHER => array(),
+            self::CSV_NAME_TEMPERATURE => array(),
+            self::CSV_NAME_WIND => array(),
+            self::CSV_NAME_POLLEN => array()
+        );
+        foreach ($this->csvData as $date => $mapData) {
+            $maps[self::CSV_NAME_WEATHER][] = new WeatherMap($this->theme, $mapData, $date);
+            $maps[self::CSV_NAME_TEMPERATURE][] = new TemperatureMap($this->theme, $mapData, $date);
+            $maps[self::CSV_NAME_WIND][] = new WindMap($this->theme, $mapData, $date);
+            $maps[self::CSV_NAME_POLLEN][] = new PollenMap($this->theme, $mapData, $date);
+        }
+
+
+        return $maps;
     }
 }

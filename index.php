@@ -1,6 +1,7 @@
 <?php
 use kije\Forecaster\CSV\ForecasterDescriptor;
 use kije\Forecaster\Forecaster;
+use kije\Forecaster\Maps\AbstractMap;
 use kije\Forecaster\Themes\Theme;
 
 require_once 'inc/global.inc.php';
@@ -45,9 +46,25 @@ $forecaster = new Forecaster(
         </ul>
     </nav>
 </header>
+<?php foreach ($forecaster->getMaps() as $mapType => $maps): ?>
+    <h1><?php echo $mapType; ?></h1>
+
+    <ul>
+        <?php foreach ($maps as $map): ?>
+            <?php /** @var AbstractMap $map */ ?>
+            <li>
+                <?php $doc = $map->render(); ?>
+                <img src="<?php
+                echo 'data:image/png;base64,' . base64_encode($doc->render()->getPNG());
+                ?>">
+                <?php $doc->destroy(); ?>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+<?php endforeach; ?>
 <img src="<?php
-echo 'data:image/png;base64,' . base64_encode($forecaster->getTempMap()->getCanvas()->getPNG24());
-?>" width="1000">
+echo 'data:image/png;base64,' . base64_encode($forecaster->getWindMap()->render()->getPNG());
+?>" width="1080">
 
 <!-- Scripts -->
 <script src="<?php echo PROJ_ROOT_URL; ?>/js/mootools-core-1.5.0.js"></script>

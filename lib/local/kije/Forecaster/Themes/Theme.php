@@ -58,7 +58,7 @@ class Theme
 
         $res = & $this->themeData;
         foreach ($pices as $pice) {
-            if (array_key_exists($pice, $res)) {
+            if ($res && array_key_exists($pice, $res)) {
                 $res = & $res[$pice];
             } else {
                 throw new ThemeException(

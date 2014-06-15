@@ -19,12 +19,13 @@ class Canvas
     const IMAGE_TYPE_GD2 = 4;
     const IMAGE_TYPE_INTERLACED_JPEG = 5;
     const IMAGE_TYPE_TRANSPARENT_PNG = 6;
-
+    const TEXT_ALIGNMENT_LEFT = 0;
+    const TEXT_ALIGNMENT_CENTER = 1;
+    const TEXT_ALIGNMENT_RIGHT = 2;
     /**
      * @var resource
      */
     protected $gdImage;
-
     private $width;
     private $height;
     private $colors = array();
@@ -39,6 +40,8 @@ class Canvas
         $this->height = $height;
         $this->gdImage = imagecreatetruecolor($width, $height);
         $this->fill($this->colorTransparent()); // fill background
+        imagesetinterpolation($this->gdImage, IMG_BICUBIC);
+        imageantialias($this->gdImage, true);
     }
 
     /**
@@ -106,7 +109,9 @@ class Canvas
             throw new CanvasException("Argument is not a file!");
         }
 
-        $canvas = new Canvas();
+        $image_size = getimagesize($file);
+
+        $canvas = new Canvas($image_size[0], $image_size[1]);
         $canvas->setGdImage($gdImage);
         return $canvas;
     }
@@ -114,7 +119,7 @@ class Canvas
     /**
      * @return int
      */
-    public function getHeight()
+    public function &getHeight()
     {
         return $this->height;
     }
@@ -122,7 +127,7 @@ class Canvas
     /**
      * @return int
      */
-    public function getWidth()
+    public function &getWidth()
     {
         return $this->width;
     }
@@ -132,7 +137,7 @@ class Canvas
      */
     public function getJPEG()
     {
-        return $this->toImage(self::IMAGE_TYPE_JPEG);
+        return $this->toImage(self::IMAGE_TYPE_JPEG, null, 0);
     }
 
     /**
@@ -200,7 +205,7 @@ class Canvas
      */
     public function saveJPEG($filename)
     {
-        return $this->toImage(self::IMAGE_TYPE_JPEG, $filename);
+        return $this->toImage(self::IMAGE_TYPE_JPEG, $filename, 100);
     }
 
     /**
@@ -209,7 +214,7 @@ class Canvas
      */
     public function getPNG()
     {
-        return $this->toImage(self::IMAGE_TYPE_PNG);
+        return $this->toImage(self::IMAGE_TYPE_PNG, null, 0);
     }
 
     /**
@@ -219,7 +224,7 @@ class Canvas
      */
     public function savePNG($filename)
     {
-        return $this->toImage(self::IMAGE_TYPE_PNG, $filename);
+        return $this->toImage(self::IMAGE_TYPE_PNG, $filename, 0);
     }
 
     /**
@@ -228,7 +233,7 @@ class Canvas
      */
     public function getPNG24()
     {
-        return $this->toImage(self::IMAGE_TYPE_TRANSPARENT_PNG);
+        return $this->toImage(self::IMAGE_TYPE_TRANSPARENT_PNG, null, 0);
     }
 
     /**
@@ -238,7 +243,7 @@ class Canvas
      */
     public function savePNG24($filename)
     {
-        return $this->toImage(self::IMAGE_TYPE_TRANSPARENT_PNG, $filename);
+        return $this->toImage(self::IMAGE_TYPE_TRANSPARENT_PNG, $filename, 0);
     }
 
     /**
@@ -260,12 +265,11 @@ class Canvas
         return $this->toImage(self::IMAGE_TYPE_GIF, $filename);
     }
 
-    /**
-     *
-     */
-    public function __destruct()
+
+    public function destroy()
     {
         imagedestroy($this->gdImage);
+        unset($this);
     }
 
     /**
@@ -325,6 +329,7 @@ class Canvas
      * @param $start
      * @param $end
      * @param $color
+     * @param bool $filled
      * @return $this
      */
     public function drawArc($cx, $cy, $width, $height, $start, $end, $color, $filled = false)
@@ -365,25 +370,6 @@ class Canvas
     {
         imagepolygon($this->gdImage, $points, $num_points, $color);
         // TODO: filled
-        return $this;
-    }
-
-    /**
-     * @param $x1
-     * @param $y1
-     * @param $x2
-     * @param $y2
-     * @param $color
-     * @return $this
-     */
-    public function drawRectangle($x1, $y1, $x2, $y2, $color, $filled = false)
-    {
-        if ($filled) {
-            imagefilledrectangle($this->gdImage, $x1, $y1, $x2, $y2, $color);
-        } else {
-            imagerectangle($this->gdImage, $x1, $y1, $x2, $y2, $color);
-        }
-
         return $this;
     }
 
@@ -624,8 +610,32 @@ class Canvas
         return $this->createColor(0x00, 0xFF, 0xFF);
     }
 
-    public function textBox(
-        $size,
+    /**
+     * Creates a Text-Box with the upper-left corner at position {@link $x}/{@link $y}.
+     * Optionally it adds {@link $padding_x}, {@link $padding_y}, {@link $margin_x} and {@link $margin_y}.
+     * Via the border parameters, a border can be added.
+     * All measures ({@link $padding_x}, {@link $padding_y}, {@link $margin_x}, {@link $margin_y}, {@link $$border_line_width})
+     * can also be a percentage or negative. E. g.  {@link $margin_x} = "50%" or {@link $margin_x} = "-10%".
+     * The percentage will be relative to the width/height of the text.
+     *
+     *
+     * @param $fontSize
+     * @param $angle
+     * @param $x
+     * @param $y
+     * @param $color
+     * @param $fontfile
+     * @param $text
+     * @param bool $backgroundColor
+     * @param int|String $padding_x
+     * @param int|String $padding_y
+     * @param int|String $margin_x
+     * @param int|String $margin_y
+     * @param bool|int|String $border_color
+     * @param bool|int|String $border_line_width
+     */
+    public function flexibleTextBox(
+        $fontSize,
         $angle,
         $x,
         $y,
@@ -636,28 +646,201 @@ class Canvas
         $padding_x = 0,
         $padding_y = 0,
         $margin_x = 0,
-        $margin_y = 0
+        $margin_y = 0,
+        $border_color = false,
+        $border_line_width = false
     ) {
         if (!$backgroundColor) {
             $backgroundColor = $this->colorTransparent();
         }
 
-        $x += $margin_x;
-        $y += $margin_y;
-        $text_x = $x + $padding_x;
-        $text_y = $y + $padding_y;
-
-        $textMeasure = imagettfbbox($size, $angle, $fontfile, $text);
+        $textMeasure = imagettfbbox($fontSize, $angle, $fontfile, $text);
 
         $text_width = abs($textMeasure[4] - $textMeasure[0]);
         $text_height = abs($textMeasure[5] - $textMeasure[1]);
 
+        $this->convertPercentageToPixel($padding_x, $text_width);
+        $this->convertPercentageToPixel($padding_y, $text_height);
+        $this->convertPercentageToPixel($margin_x, $text_width);
+        $this->convertPercentageToPixel($margin_y, $text_height);
+
+
+        $box_x = $x + $margin_x;
+        $box_y = $y + $margin_y;
+        $text_x = $box_x + $padding_x;
+        $text_y = $box_y + $padding_y;
+
         $box_width = $text_width + (2 * $padding_x);
         $box_height = $text_height + (2 * $padding_y);
 
-        $this->drawRectangle($x, $y, $x + $box_width, $y + $box_height, $backgroundColor, true);
+        $this->drawRectangle($box_x, $box_y, $box_x + $box_width, $box_y + $box_height, $backgroundColor, true);
 
-        imagettftext($this->gdImage, $size, $angle, $text_x, $text_y, $color, $fontfile, $text);
+        if ($border_color && $border_line_width) {
+            $this->convertPercentageToPixel($border_line_width, $text_width);
+
+            $border_x = $box_x - $border_line_width;
+            $border_y = $box_y - $border_line_width;
+
+            $border_width = $box_width + (2 * $border_line_width);
+            $border_height = $box_height + (2 * $border_line_width);
+
+            imagesetthickness($this->gdImage, $border_line_width);
+            $this->drawRectangle(
+                $border_x,
+                $border_y,
+                $border_x + $border_width,
+                $border_y + $border_height,
+                $border_color
+            );
+            imagesetthickness($this->gdImage, 1);
+        }
+
+        $this->drawText($fontSize, $text_x, $text_y + $text_height, $color, $fontfile, $text, $angle);
+    }
+
+    protected function convertPercentageToPixel(&$percentage, $hundertPercent)
+    {
+        if (is_string($percentage) && strpos($percentage, '%') !== false) {
+            $percentage = str_replace('%', '', $percentage);
+            $percentage = doubleval($percentage);
+            $percentage = ($hundertPercent / 100) * $percentage;
+        }
+    }
+
+    /**
+     * @param $x1
+     * @param $y1
+     * @param $x2
+     * @param $y2
+     * @param $color
+     * @param bool $filled
+     * @return $this
+     */
+    public function drawRectangle($x1, $y1, $x2, $y2, $color, $filled = false)
+    {
+        if ($filled) {
+            imagefilledrectangle($this->gdImage, $x1, $y1, $x2, $y2, $color);
+        } else {
+            imagerectangle($this->gdImage, $x1, $y1, $x2, $y2, $color);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $fontSize
+     * @param $angle
+     * @param $x1
+     * @param $y1
+     * @param $x2
+     * @param $y2
+     * @param $color
+     * @param $fontfile
+     * @param $text
+     * @param int $alignment
+     * @param bool $backgroundColor
+     * @param int|String $padding_x
+     * @param int|String $padding_y
+     * @param int|String $margin_x
+     * @param int|String $margin_y
+     * @param bool|int|String $border_color
+     * @param bool|int|String $border_line_width
+     */
+    public function fixedTextBox(
+        $fontSize,
+        $angle,
+        $x1,
+        $y1,
+        $x2,
+        $y2,
+        $color,
+        $fontfile,
+        $text,
+        $alignment = self::TEXT_ALIGNMENT_CENTER,
+        $backgroundColor = false,
+        $padding_x = 0,
+        $padding_y = 0,
+        $margin_x = 0,
+        $margin_y = 0,
+        $border_color = false,
+        $border_line_width = false
+    ) {
+        if (!$backgroundColor) {
+            $backgroundColor = $this->colorTransparent();
+        }
+
+        $width = abs($x2 - $x1);
+        $height = abs($y2 - $y1);
+
+        $this->convertPercentageToPixel($padding_x, $width);
+        $this->convertPercentageToPixel($padding_y, $height);
+        $this->convertPercentageToPixel($margin_x, $width);
+        $this->convertPercentageToPixel($margin_y, $height);
+
+        $box_width = $width - (2 * $margin_x);
+        $box_height = $height - (2 * $margin_y);
+
+        $box_x = $x1 + $margin_x;
+        $box_y = $y1 + $margin_y;
+
+        $textMeasure = imagettfbbox($fontSize, $angle, $fontfile, $text);
+
+        $text_width = abs($textMeasure[4] - $textMeasure[0]);
+        $text_height = abs($textMeasure[5] - $textMeasure[1]);
+
+        $text_x = $box_x + $padding_x;
+        $text_y = $box_y + $padding_y + ((($box_height - (2 * $padding_y)) / 2) - ($text_height / 2));
+
+        switch ($alignment) {
+            case self::TEXT_ALIGNMENT_LEFT:
+                break;
+
+            case self::TEXT_ALIGNMENT_CENTER:
+                $text_x += ((($box_width - (2 * $padding_x)) / 2) - ($text_width / 2));
+                break;
+
+            case self::TEXT_ALIGNMENT_RIGHT:
+                $text_x += ($box_width - (2 * $padding_x)) - $text_width;
+                break;
+        }
+
+        $this->drawRectangle($box_x, $box_y, $box_x + $box_width, $box_y + $box_height, $backgroundColor, true);
+
+        if ($border_color && $border_line_width) {
+            $this->convertPercentageToPixel($border_line_width, $width);
+
+            $border_x = $box_x - $border_line_width;
+            $border_y = $box_y - $border_line_width;
+
+            $border_width = $box_width + (2 * $border_line_width);
+            $border_height = $box_height + (2 * $border_line_width);
+
+            imagesetthickness($this->gdImage, $border_line_width);
+            $this->drawRectangle(
+                $border_x,
+                $border_y,
+                $border_x + $border_width,
+                $border_y + $border_height,
+                $border_color
+            );
+            imagesetthickness($this->gdImage, 1);
+        }
+
+        $this->drawText($fontSize, $text_x, $text_y + $text_height, $color, $fontfile, $text, $angle);
+    }
+
+    /**
+     * @param $fontSize
+     * @param $angle
+     * @param $x
+     * @param $y
+     * @param $color
+     * @param $fontfile
+     * @param $text
+     */
+    public function drawText($fontSize, $x, $y, $color, $fontfile, $text, $angle = 0)
+    {
+        imagettftext($this->gdImage, $fontSize, $angle, $x, $y, $color, $fontfile, $text);
     }
 
     /**
@@ -667,6 +850,13 @@ class Canvas
     protected function prepareDraw($color, $thickness)
     {
 
+    }
+
+    public function rotate($angle)
+    {
+        $this->gdImage = imagerotate($this->gdImage, $angle, $this->colorTransparent());
+        $this->width = imagesx($this->gdImage);
+        $this->height = imagesy($this->gdImage);
     }
 
     // todo text etc...

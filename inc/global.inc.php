@@ -23,5 +23,7 @@ ini_set("error_log", PROJ_ROOT . "/var/log/php-error.log");
 date_default_timezone_set('Europe/Zurich');
 gc_enable();
 
+//ini_set('memory_limit', '1024M');
+
 // includes
 require_once 'autoloader.php';

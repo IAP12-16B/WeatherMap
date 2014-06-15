@@ -45,7 +45,10 @@ use kije\ImagIX\Exception\LayerException;
  * @method int colorYellow()
  * @method int colorMagenta()
  * @method int colorCyan()
- * @method textBox($size, $angle, $x, $y, $color, $fontfile, $text, $backgroundColor = false, $padding_x = 0, $padding_y = 0, $margin_x = 0, $margin_y = 0)
+ * @method flexibleTextBox($size, $angle, $x, $y, $color, $fontfile, $text, $backgroundColor = false, $padding_x = 0, $padding_y = 0, $margin_x = 0, $margin_y = 0, $border_color = false, $border_line_width = false)
+ * @method fixedTextBox($fontSize, $angle, $x1, $y1, $x2, $y2, $color, $fontfile, $text, $alignment = Canvas::TEXT_ALIGNMENT_CENTER, $backgroundColor = false, $padding_x = 0, $padding_y = 0, $margin_x = 0, $margin_y = 0, $border_color = false, $border_line_width = false)
+ * @method drawText($fontSize, $x, $y, $color, $fontfile, $text, $angle = 0)
+ * @method rotate($angle)
  *
  * @delegate Canvas
  */
@@ -67,6 +70,13 @@ class Layer
      */
     private $canvas;
 
+    /**
+     * @param int $posx
+     * @param int $posy
+     * @param int $width
+     * @param int $height
+     * @param Canvas $image
+     */
     public function __construct($posx = 0, $posy = 0, $width = 1, $height = 1, &$image = null)
     {
         if ($image) {
@@ -115,7 +125,18 @@ class Layer
             throw new LayerException('No image set!');
         }
 
-        $canvas = new Canvas($this->canvas->getWidth(), $this->canvas->getHeight());
+        $canvas = new Canvas($this->getWidth(), $this->getHeight());
+        $canvas->copy(
+            $this->canvas,
+            0,
+            0,
+            0,
+            0,
+            $this->width,
+            $this->height,
+            $this->width,
+            $this->height
+        );
 
         ksort($this->childLayers);
 
@@ -244,8 +265,14 @@ class Layer
         return false;
     }
 
-    public function __destruct()
+    public function destroy()
     {
-        unset($this->canvas); // free
+        $this->canvas->destroy();
+
+        foreach ($this->childLayers as $layer) {
+            $layer->destroy();
+        }
+
+        unset($this);
     }
 }
