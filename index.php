@@ -33,9 +33,9 @@ $mapTypes = array(
 
     <title>Wetterkarten &ndash; Forecaster &ndash; kije</title>
 
-    <link href="<?php echo PROJ_ROOT_URL; ?>/css/normalize.css">
-    <link href="<?php echo PROJ_ROOT_URL; ?>/fontawesome/css/font-awesome.min.css">
-    <link href="<?php echo PROJ_ROOT_URL; ?>/css/forecaster.css">
+    <link rel="stylesheet" href="<?php echo PROJ_ROOT_URL; ?>/css/normalize.css">
+    <link rel="stylesheet" href="<?php echo PROJ_ROOT_URL; ?>/fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="<?php echo PROJ_ROOT_URL; ?>/css/forecaster.css">
 
     <link href="<?php echo $theme->getFont('googleFontsURL'); ?>" rel="stylesheet">
     <style>
@@ -60,16 +60,30 @@ $mapTypes = array(
 
     <div class="inner-wrapper">
         <ul class="maps">
-            <li data-map-type="weather">
-                <?php
-                $maps = $forecaster->savePollenMaps(PROJ_ROOT . '/maps', true);
-                ?>
-                <article class="map-area">
-                </article>
-                <aside class="control">
-
-                </aside>
-            </li>
+            <?php foreach ($mapTypes as $name => $maps): ?>
+                <?php $first = current($maps); ?>
+                <?php $mapType = strtolower($name); ?>
+                <li data-map-type="<?php echo $mapType; ?>">
+                    <article class="map-area">
+                        <img src="<?php echo $first; ?>" alt="<?php echo $name; ?>" class="map">
+                    </article>
+                    <aside class="control">
+                        <?php $num = 0; ?>
+                        <datalist id="<?php echo $mapType; ?>_datalist">
+                            <?php foreach ($maps as $date => $map): ?>
+                                <option
+                                    value="<?php echo $map; ?>"
+                                    data-text="<?php echo date('l', $date); ?>"
+                                    data-index="<?php echo $num; ?>"
+                                    ></option>
+                                <?php $num++; ?>
+                            <?php endforeach; ?>
+                        </datalist>
+                        <input type="range" class="date-slider" min="0" max="<?php echo $num - 1; ?>" step="1" value="0"
+                               list="<?php echo $mapType; ?>_datalist">
+                    </aside>
+                </li>
+            <?php endforeach; ?>
         </ul>
     </div>
 </div>

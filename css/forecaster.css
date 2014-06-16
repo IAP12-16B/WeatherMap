@@ -1,0 +1,22 @@
+/** Main */
+.inner-wrapper .maps li {
+    display: none;
+}
+
+.inner-wrapper .maps li.current {
+    display: block;
+}
+
+.main-navi ul li {
+    cursor: pointer;
+}
+
+.main-navi ul li.current,
+.main-navi ul li:hover {
+    background-color: red;
+}
+
+.inner-wrapper .maps li img {
+    width: 1000px;
+    height: auto;
+}
