@@ -150,9 +150,6 @@ class Canvas
      */
     public function toImage($filetype = self::IMAGE_TYPE_JPEG, $filename = null, $quality = null, $filter = null)
     {
-        if ($filename && !is_writable($filename)) {
-            throw new CanvasException('Path is not writable!');
-        }
         $return = null;
         if (!$filename) {
             ob_start();

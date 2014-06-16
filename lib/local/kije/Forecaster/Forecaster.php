@@ -4,13 +4,14 @@ namespace kije\Forecaster;
 
 
 use kije\Forecaster\CSV\Descriptor;
-use kije\Forecaster\Maps\AbstractMap;
 use kije\Forecaster\Maps\MapIterator;
-use kije\Forecaster\Maps\PollenMap;
-use kije\Forecaster\Maps\TemperatureMap;
-use kije\Forecaster\Maps\WeatherMap;
-use kije\Forecaster\Maps\WindMap;
+use kije\Forecaster\Maps\PollenMapIterator;
+use kije\Forecaster\Maps\TemperatureMapIterator;
+use kije\Forecaster\Maps\WeatherMapIterator;
+use kije\Forecaster\Maps\WindMapIterator;
 use kije\Forecaster\Themes\Theme;
+use kije\ImagIX\Canvas;
+use kije\ImagIX\Document;
 
 class Forecaster
 {
@@ -51,11 +52,8 @@ class Forecaster
         $this->csvDescriptor = $csvDescriptor;
         $this->csvURL = $csvURL;
         $this->theme = $theme;
-    }
 
-    public function setTheme($theme)
-    {
-        $this->theme = $theme;
+        $this->readCSV();
     }
 
     private function readCSV()
@@ -86,26 +84,163 @@ class Forecaster
         }
     }
 
-    /**
-     * @return AbstractMap[String][]
-     */
-    public function getMaps()
+    public function setTheme($theme)
     {
-        $this->readCSV();
-        $maps = array(
-            self::CSV_NAME_WEATHER => array(),
-            self::CSV_NAME_TEMPERATURE => array(),
-            self::CSV_NAME_WIND => array(),
-            self::CSV_NAME_POLLEN => array()
-        );
-        foreach ($this->csvData as $date => $mapData) {
-            $maps[self::CSV_NAME_WEATHER][] = new WeatherMap($this->theme, $mapData, $date);
-            $maps[self::CSV_NAME_TEMPERATURE][] = new TemperatureMap($this->theme, $mapData, $date);
-            $maps[self::CSV_NAME_WIND][] = new WindMap($this->theme, $mapData, $date);
-            $maps[self::CSV_NAME_POLLEN][] = new PollenMap($this->theme, $mapData, $date);
+        $this->theme = $theme;
+    }
+
+    /**
+     * @return PollenMapIterator
+     */
+    public function getPollenMaps()
+    {
+        return new PollenMapIterator($this->csvData, $this->theme);
+    }
+
+    /**
+     * @param $path
+     * @param bool $relativePaths
+     * @param bool|array $size resize map before save
+     * @return String[int]
+     */
+    public function savePollenMaps($path, $relativePaths = false, $size = false)
+    {
+        $this->preparePath($path);
+
+        $maps = array();
+        foreach ($this->getPollenMaps() as $date => $map) {
+            $maps[$date] = $this->saveMap($map, $date, self::CSV_NAME_POLLEN, $path, $relativePaths, $size);
         }
 
+        return $maps;
+    }
+
+    protected function preparePath($path)
+    {
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
+    }
+
+    /**
+     * @return WeatherMapIterator
+     */
+    public function getWeatherMaps()
+    {
+        return new WeatherMapIterator($this->csvData, $this->theme);
+    }
+
+    /**
+     * @param Document $mapDoc
+     * @param $date
+     * @param $mapType
+     * @param $path
+     * @param $relativePaths
+     * @param $size
+     * @return mixed|string
+     */
+    protected function saveMap($mapDoc, $date, $mapType, $path, $relativePaths, $size)
+    {
+        $filename = sprintf('%s_%s.%s', $mapType, $date, 'jpg');
+        $fullPath = $path . '/' . $filename;
+        $canvas = $mapDoc->render();
+        if (is_array($size)) {
+            list($width, $height) = $size;
+
+            if ($height == null) {
+                $height = $canvas->getHeight() * ($width / $canvas->getWidth());
+            }
+            $resizedCanvas = new Canvas($width, $height);
+
+            $resizedCanvas->copyResized(
+                $canvas,
+                0,
+                0,
+                0,
+                0,
+                $width,
+                $height,
+                $canvas->getWidth(),
+                $canvas->getHeight()
+            );
+            $canvas = $resizedCanvas;
+        }
+        $canvas->saveJPEG($fullPath);
+
+        if ($relativePaths) {
+            return str_replace($_SERVER['DOCUMENT_ROOT'], '', $fullPath);
+        } else {
+            return $fullPath;
+        }
+    }
+
+    /**
+     * @param $path
+     * @param bool $relativePaths
+     * @param bool|array $size resize map before save
+     * @return String[int]
+     */
+    public function saveTemperatureMaps($path, $relativePaths = false, $size = false)
+    {
+        $this->preparePath($path);
+
+        $maps = array();
+        foreach ($this->getTemperatureMaps() as $date => $map) {
+            $maps[$date] = $this->saveMap($map, $date, self::CSV_NAME_TEMPERATURE, $path, $relativePaths, $size);
+        }
 
         return $maps;
+    }
+
+    /**
+     * @return TemperatureMapIterator
+     */
+    public function getTemperatureMaps()
+    {
+        return new TemperatureMapIterator($this->csvData, $this->theme);
+    }
+
+    /**
+     * @param $path
+     * @param bool $relativePaths
+     * @param bool|array $size resize map before save
+     * @return String[int]
+     */
+    public function saveWeatherMaps($path, $relativePaths = false, $size = false)
+    {
+        $this->preparePath($path);
+
+        $maps = array();
+        foreach ($this->getWeatherMaps() as $date => $map) {
+            $maps[$date] = $this->saveMap($map, $date, self::CSV_NAME_WEATHER, $path, $relativePaths, $size);
+        }
+
+        return $maps;
+    }
+
+    /**
+     * @param $path
+     * @param bool $relativePaths
+     * @param bool|array $size resize map before save
+     * @return String[int]
+     */
+    public function saveWindMaps($path, $relativePaths = false, $size = false)
+    {
+        $this->preparePath($path);
+
+        $maps = array();
+        foreach ($this->getWindMaps() as $date => $map) {
+            $maps[$date] = $this->saveMap($map, $date, self::CSV_NAME_WIND, $path, $relativePaths, $size);
+        }
+
+        return $maps;
+    }
+
+    /**
+     * @return WindMapIterator
+     */
+    public function getWindMaps()
+    {
+        return new WindMapIterator($this->csvData, $this->theme);
     }
 }

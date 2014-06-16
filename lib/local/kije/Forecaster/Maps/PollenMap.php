@@ -43,8 +43,71 @@ class PollenMap extends AbstractMap
 
     }
 
+    /**
+     * @param Layer $layer
+     */
     protected function drawLegend(&$layer)
     {
-        // TODO: Implement drawLegend() method.
+        $layer->drawText(
+            20,
+            10,
+            25,
+            $layer->colorBlack(),
+            $this->theme->getThemeURL() . '/' . $this->theme->getFont('localFile'),
+            "Pollenbelastung"
+        );
+
+        $pollen = array(
+            'keine' => null,
+            'schwach' => $this->theme->getPollenIcon(1),
+            'mässig' => $this->theme->getPollenIcon(2),
+            'stark' => $this->theme->getPollenIcon(3)
+        );
+
+
+        $y = 50;
+        foreach ($pollen as $description => $iconName) {
+
+            $layer->fixedTextBox(
+                18,
+                0,
+                1,
+                $y,
+                190,
+                $y + 40,
+                $layer->colorBlack(),
+                $this->theme->getThemeURL() . '/' . $this->theme->getFont('localFile'),
+                $description,
+                Canvas::TEXT_ALIGNMENT_LEFT,
+                $layer->colorWhite(),
+                65,
+                10,
+                5,
+                0,
+                $layer->createColor(0xCC, 0xCC, 0xCC),
+                1
+            );
+
+            if ($iconName) {
+                $iconCanvas = Canvas::fromFile($this->theme->getThemeURL() . '/' . $iconName);
+
+                $iconWidth = 35;
+                $iconHeight = $iconCanvas->getHeight() / ($iconCanvas->getWidth() / $iconWidth);
+
+                $layer->copy(
+                    $iconCanvas,
+                    15,
+                    $y + (20 - ($iconHeight / 2)),
+                    0,
+                    0,
+                    $iconWidth,
+                    $iconHeight,
+                    $iconCanvas->getWidth(),
+                    $iconCanvas->getHeight()
+                );
+            }
+
+            $y += 50;
+        }
     }
 }

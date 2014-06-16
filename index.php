@@ -1,7 +1,6 @@
 <?php
 use kije\Forecaster\CSV\ForecasterDescriptor;
 use kije\Forecaster\Forecaster;
-use kije\Forecaster\Maps\AbstractMap;
 use kije\Forecaster\Themes\Theme;
 
 require_once 'inc/global.inc.php';
@@ -12,6 +11,15 @@ $forecaster = new Forecaster(
     new ForecasterDescriptor(';'),
     PROJ_ROOT . '/test.csv',
     $theme
+);
+
+$savePath = PROJ_ROOT . '/maps';
+
+$mapTypes = array(
+    'Wetter' => $forecaster->saveWeatherMaps($savePath, true),
+    'Temperatur' => $forecaster->saveTemperatureMaps($savePath, true),
+    'Wind' => $forecaster->saveWindMaps($savePath, true),
+    'Pollen' => $forecaster->savePollenMaps($savePath, true)
 );
 
 ?>
@@ -37,34 +45,35 @@ $forecaster = new Forecaster(
     </style>
 </head>
 <body>
-<header class="main-header">
-    <nav class="main-nav">
-        <ul>
+<div class="outer-wrapper">
+    <header class="main-header">
+        <nav class="main-nav">
+            <ul>
+                <?php foreach ($mapTypes as $name => $maps): ?>
+                    <li data-map-type="<?php echo strtolower($name); ?>">
+                        <?php echo $name; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="inner-wrapper">
+        <ul class="maps">
             <li data-map-type="weather">
-                <a>Wetter</a>
+                <?php
+                $maps = $forecaster->savePollenMaps(PROJ_ROOT . '/maps', true);
+                ?>
+                <article class="map-area">
+                </article>
+                <aside class="control">
+
+                </aside>
             </li>
         </ul>
-    </nav>
-</header>
-<?php foreach ($forecaster->getMaps() as $mapType => $maps): ?>
-    <h1><?php echo $mapType; ?></h1>
+    </div>
+</div>
 
-    <ul>
-        <?php foreach ($maps as $map): ?>
-            <?php /** @var AbstractMap $map */ ?>
-            <li>
-                <?php $doc = $map->render(); ?>
-                <img src="<?php
-                echo 'data:image/png;base64,' . base64_encode($doc->render()->getPNG());
-                ?>">
-                <?php $doc->destroy(); ?>
-            </li>
-        <?php endforeach; ?>
-    </ul>
-<?php endforeach; ?>
-<img src="<?php
-echo 'data:image/png;base64,' . base64_encode($forecaster->getWindMap()->render()->getPNG());
-?>" width="1080">
 
 <!-- Scripts -->
 <script src="<?php echo PROJ_ROOT_URL; ?>/js/mootools-core-1.5.0.js"></script>
