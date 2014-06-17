@@ -21,12 +21,13 @@ define('PROJ_ROOT_URL', str_replace(DOC_ROOT, '', PROJ_ROOT));
 ini_set('log_errors', true);
 ini_set("error_log", PROJ_ROOT . '/var/log/php-error.log');
 
+// some other useful settings
 date_default_timezone_set('Europe/Zurich');
 setlocale(LC_TIME, 'de_DE');
 gc_enable();
 
 
-//ini_set('memory_limit', '1024M');
+//ini_set('memory_limit', '1024M'); // had memory issues when generating all maps at once
 
 // includes
 require_once 'autoloader.php';

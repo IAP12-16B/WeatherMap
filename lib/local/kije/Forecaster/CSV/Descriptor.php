@@ -7,7 +7,7 @@ namespace kije\Forecaster\CSV;
 use kije\Forecaster\CSV\Exception\CSVDescriptorException;
 
 /**
- * Class Descriptor
+ * CSV descriptor class. Used to dynamically describe a CSV.
  * @package kije\Forecaster\CSV
  */
 class Descriptor
@@ -15,6 +15,9 @@ class Descriptor
     private $fields;
     private $separator;
 
+    /**
+     * @param string $separator
+     */
     public function __construct($separator = ',')
     {
         $this->separator = $separator;
@@ -37,6 +40,11 @@ class Descriptor
         $this->separator = $separator;
     }
 
+    /**
+     * @param $name
+     * @param $index
+     * @throws Exception\CSVDescriptorException
+     */
     public function addField($name, $index)
     {
         if (!array_key_exists($name, $this->fields) && !in_array($index, $this->fields)) {
@@ -46,6 +54,10 @@ class Descriptor
         }
     }
 
+    /**
+     * @param $name
+     * @return mixed
+     */
     public function getFieldByName($name)
     {
         if (array_key_exists($name, $this->fields)) {
@@ -53,6 +65,10 @@ class Descriptor
         }
     }
 
+    /**
+     * @param $index
+     * @return mixed
+     */
     public function getFieldByIndex($index)
     {
         if (in_array($index, $this->fields)) {
@@ -61,6 +77,9 @@ class Descriptor
         }
     }
 
+    /**
+     * @return array
+     */
     public function  getFields()
     {
         return $this->fields;

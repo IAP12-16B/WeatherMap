@@ -6,9 +6,22 @@ namespace kije\Forecaster\CSV;
 
 use kije\Forecaster\Forecaster;
 
+/**
+ * Class ForecasterDescriptor
+ * @package kije\Forecaster\CSV
+ */
 class ForecasterDescriptor extends Descriptor
 {
 
+    /**
+     * @param string $separator
+     * @param int $dateIndex
+     * @param int $regionIndex
+     * @param int $weatherIndex
+     * @param int $temperatureIndex
+     * @param int $windIndex
+     * @param int $pollenIndex
+     */
     function __construct(
         $separator = ',',
         $dateIndex = 0,
@@ -20,6 +33,7 @@ class ForecasterDescriptor extends Descriptor
     ) {
         parent::__construct($separator);
 
+        // add fields
         $this->addField(Forecaster::CSV_NAME_DATE, $dateIndex);
         $this->addField(Forecaster::CSV_NAME_REGION, $regionIndex);
         $this->addField(Forecaster::CSV_NAME_WEATHER, $weatherIndex);

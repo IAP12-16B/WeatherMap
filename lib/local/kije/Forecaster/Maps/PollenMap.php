@@ -21,6 +21,9 @@ class PollenMap extends AbstractMap
     {
         $pollen = $data[self::DATA_NAME];
         if ($iconName = $this->theme->getPollenIcon($pollen)) {
+
+            // add the icon to the map
+
             $icon = $this->theme->getThemeURL() . '/' . $iconName;
 
             $iconCanvas = Canvas::fromFile($icon);
@@ -45,6 +48,7 @@ class PollenMap extends AbstractMap
 
     /**
      * @param Layer $layer
+     * @return mixed|void
      */
     protected function drawLegend(&$layer)
     {

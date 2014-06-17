@@ -17,6 +17,10 @@ use kije\Forecaster\Maps\WindMapIterator;
 use kije\Forecaster\Themes\Theme;
 use kije\ImagIX\Canvas;
 
+/**
+ * The Forecaster its self. Reads CSV and delegated map generation
+ * @package kije\Forecaster
+ */
 class Forecaster
 {
     const CSV_NAME_DATE = "date";
@@ -60,34 +64,53 @@ class Forecaster
         $this->readCSV();
     }
 
+    /**
+     *
+     */
     private function readCSV()
     {
         $this->csvData = array();
-        //if (file_exists($this->csvURL)) {
-        $csvFileHandle = fopen($this->csvURL, "r");
-        if ($csvFileHandle !== false) {
-            while (($data = fgetcsv($csvFileHandle, 70, $this->csvDescriptor->getSeparator())) !== false) {
-                $key = strtotime($data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_DATE)]);
-                $regKey = $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_REGION)];
-                $this->csvData[$key][$regKey] = array(
-                    self::CSV_NAME_DATE => $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_DATE)],
-                    self::CSV_NAME_REGION => $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_REGION)],
-                    self::CSV_NAME_WEATHER => $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_WEATHER)],
-                    self::CSV_NAME_TEMPERATURE => explode(
-                        '/',
-                        $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_TEMPERATURE)]
-                    ),
-                    self::CSV_NAME_WIND => explode(
-                        '/',
-                        $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_WIND)]
-                    ),
-                    self::CSV_NAME_POLLEN => $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_POLLEN)]
-                );
+        // this does not work with urls... even though the PHP doc says it should work...
+        // check if the csv exists
+        if (file_exists($this->csvURL)) {
+
+            // open a read-only file handle to the file
+            $csvFileHandle = fopen($this->csvURL, "r");
+
+            if ($csvFileHandle !== false) {
+                // read the csv line by line
+                while (($data = fgetcsv($csvFileHandle, 70, $this->csvDescriptor->getSeparator())) !== false) {
+                    // sort the read data by date
+                    $key = strtotime($data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_DATE)]);
+
+                    // and by region
+                    $regKey = $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_REGION)];
+
+                    // add the data to the array
+                    $this->csvData[$key][$regKey] = array(
+                        self::CSV_NAME_DATE => $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_DATE)],
+                        self::CSV_NAME_REGION => $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_REGION)],
+                        self::CSV_NAME_WEATHER => $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_WEATHER)],
+                        // split min/max temperature
+                        self::CSV_NAME_TEMPERATURE => explode(
+                            '/',
+                            $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_TEMPERATURE)]
+                        ),
+                        // split wind strength and direction
+                        self::CSV_NAME_WIND => explode(
+                            '/',
+                            $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_WIND)]
+                        ),
+                        self::CSV_NAME_POLLEN => $data[$this->csvDescriptor->getFieldByName(self::CSV_NAME_POLLEN)]
+                    );
+                }
             }
-            //}
         }
     }
 
+    /**
+     * @param $theme
+     */
     public function setTheme($theme)
     {
         $this->theme = $theme;
@@ -111,6 +134,9 @@ class Forecaster
         return $maps;
     }
 
+    /**
+     * @param $path
+     */
     protected function preparePath($path)
     {
         if (!is_dir($path)) {
@@ -251,14 +277,19 @@ class Forecaster
     }
 
     /**
+     * Get a single map with the current theme.
      * @param int $date
      * @param String $type
      * @return PollenMap|TemperatureMap|WeatherMap|WindMap|null
      */
     public function getMap($date, $type)
     {
+        // check if the date exists in the data array
         if (array_key_exists($date, $this->csvData)) {
+            // if true, get the data
             $data = $this->csvData[$date];
+
+            // and return the requested map
             switch ($type) {
                 case self::CSV_NAME_POLLEN:
                     return new PollenMap($this->theme, $data, $date);
@@ -280,6 +311,9 @@ class Forecaster
     }
 
     /**
+     * Gets all dates, which are present in the data array
+     * @param bool $timestamps
+     * @param string $format
      * @return int[]
      */
     public function getDates($timestamps = true, $format = 'Y-m-d')
@@ -298,6 +332,7 @@ class Forecaster
     }
 
     /**
+     * Get the available map types. $key = displayable name; $value = type identifier
      * @return array
      */
     public function getTypes()
