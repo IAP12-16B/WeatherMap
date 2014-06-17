@@ -52,6 +52,7 @@ class PollenMap extends AbstractMap
      */
     protected function drawLegend(&$layer)
     {
+        // add title
         $layer->drawText(
             20,
             10,
@@ -72,6 +73,7 @@ class PollenMap extends AbstractMap
         $y = 50;
         foreach ($pollen as $description => $iconName) {
 
+            // add legend text box
             $layer->fixedTextBox(
                 18,
                 0,
@@ -92,6 +94,7 @@ class PollenMap extends AbstractMap
                 1
             );
 
+            //and, if there is an icon, add it in front of the text
             if ($iconName) {
                 $iconCanvas = Canvas::fromFile($this->theme->getThemeURL() . '/' . $iconName);
 

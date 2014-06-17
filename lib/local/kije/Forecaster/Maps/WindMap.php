@@ -31,17 +31,21 @@ class WindMap extends AbstractMap
     {
         $windDirectory = $data[self::DATA_NAME][0];
         $windStrength = $data[self::DATA_NAME][1];
+
+        // if not no wind
         if ($windDirectory != 'NN') {
 
             $icon = $this->theme->getThemeURL() . '/' . $this->theme->getWindIcon();
 
             $iconCanvas = Canvas::fromFile($icon);
 
+            // rotate the icon
             $iconCanvas->rotate($this->directionToDegree($windDirectory));
 
             $iconWidth = $iconCanvas->getWidth() * 0.28;
             $iconHeight = $iconCanvas->getHeight() / ($iconCanvas->getWidth() / $iconWidth);
 
+            // add it onto the map
             $layer->copy(
                 $iconCanvas,
                 (($layer->getWidth() / 2) - ($iconWidth / 2)),
@@ -55,6 +59,7 @@ class WindMap extends AbstractMap
             );
         }
 
+        // add the wind strength text
         $layer->fixedTextBox(
             17,
             0,
@@ -76,6 +81,11 @@ class WindMap extends AbstractMap
         );
     }
 
+    /**
+     * Converts a direction (e.g. NW) to a angle
+     * @param $direction
+     * @return mixed
+     */
     protected function directionToDegree($direction)
     {
         return $this->dir2deg[strtoupper($direction)];
@@ -83,6 +93,7 @@ class WindMap extends AbstractMap
 
     /**
      * @param Layer $layer
+     * @return mixed|void
      */
     protected function drawLegend(&$layer)
     {

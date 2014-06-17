@@ -27,6 +27,7 @@ class TemperatureMap extends AbstractMap
         $min = $regionTemp[0];
         $max = $regionTemp[1];
 
+        // add max temperature
         $layer->fixedTextBox(
             17,
             0,
@@ -47,6 +48,7 @@ class TemperatureMap extends AbstractMap
             1
         );
 
+        // add min temperature
         $layer->fixedTextBox(
             17,
             0,
@@ -70,9 +72,11 @@ class TemperatureMap extends AbstractMap
 
     /**
      * @param Layer $layer
+     * @return mixed|void
      */
     protected function drawLegend(&$layer)
     {
+        // title
         $layer->drawText(
             20,
             10,
@@ -81,6 +85,7 @@ class TemperatureMap extends AbstractMap
             $this->theme->getThemeURL() . '/' . $this->theme->getFont('localFile'),
             "Temperaturen"
         );
+
 
         $layer->fixedTextBox(
             17,

@@ -27,6 +27,7 @@ class WeatherMap extends AbstractMap
         $iconWidth = 110;
         $iconHeight = $iconCanvas->getHeight() / ($iconCanvas->getWidth() / $iconWidth);
 
+        // simply add the icon
         $layer->copy(
             $iconCanvas,
             (($layer->getWidth() / 2) - ($iconWidth / 2)),
@@ -42,6 +43,6 @@ class WeatherMap extends AbstractMap
 
     protected function drawLegend(&$layer)
     {
-        // TODO: Implement drawLegend() method.
+        // this map need no legend ;) It's pretty obvious what e.g. a raining cloud means
     }
 }
