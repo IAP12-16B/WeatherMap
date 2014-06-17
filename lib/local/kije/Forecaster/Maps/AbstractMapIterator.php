@@ -23,8 +23,8 @@ abstract class AbstractMapIterator implements \Iterator
      */
     public function next()
     {
-        if ($this->currentMapDocument) {
-            $this->currentMapDocument->destroy();
+        if ($this->currentMap) {
+            $this->currentMap->destroy();
         }
         $this->position++;
     }
@@ -62,8 +62,8 @@ abstract class AbstractMapIterator implements \Iterator
      */
     public function rewind()
     {
-        if ($this->currentMapDocument) {
-            $this->currentMapDocument->destroy();
+        if ($this->currentMap) {
+            $this->currentMap->destroy();
         }
         $this->position = 0;
     }
@@ -82,7 +82,7 @@ abstract class AbstractMapIterator implements \Iterator
     /**
      * @var Document
      */
-    protected $currentMapDocument;
+    protected $currentMap;
 
     function __construct($data, $theme)
     {

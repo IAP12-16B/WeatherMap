@@ -6,20 +6,11 @@ use kije\Forecaster\Themes\Theme;
 require_once 'inc/global.inc.php';
 
 $theme = new Theme(PROJ_ROOT . '/var/themes/forecaster.ftheme');
-
 $forecaster = new Forecaster(
     new ForecasterDescriptor(';'),
+    //'http://home.gibm.ch/m307/wetter.php',
     PROJ_ROOT . '/test.csv',
     $theme
-);
-
-$savePath = PROJ_ROOT . '/maps';
-
-$mapTypes = array(
-    'Wetter' => $forecaster->saveWeatherMaps($savePath, true),
-    'Temperatur' => $forecaster->saveTemperatureMaps($savePath, true),
-    'Wind' => $forecaster->saveWindMaps($savePath, true),
-    'Pollen' => $forecaster->savePollenMaps($savePath, true)
 );
 
 ?>
@@ -49,9 +40,9 @@ $mapTypes = array(
     <header class="main-header">
         <nav class="main-nav">
             <ul>
-                <?php foreach ($mapTypes as $name => $maps): ?>
-                    <li data-map-type="<?php echo strtolower($name); ?>">
-                        <?php echo $name; ?>
+                <?php foreach ($forecaster->getTypes() as $name => $type): ?>
+                    <li data-map-type="<?php echo $type; ?>">
+                    <?php echo $name; ?>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -60,34 +51,39 @@ $mapTypes = array(
 
     <div class="inner-wrapper">
         <ul class="maps">
-            <?php foreach ($mapTypes as $name => $maps): ?>
-                <?php $first = current($maps); ?>
-                <?php $mapType = strtolower($name); ?>
-                <li data-map-type="<?php echo $mapType; ?>">
+            <?php foreach ($forecaster->getTypes() as $name => $type): ?>
+                <?php $firstDate = current($forecaster->getDates()); ?>
+                <li data-map-type="<?php echo $type; ?>">
                     <article class="map-area">
-                        <img src="<?php echo $first; ?>" alt="<?php echo $name; ?>" class="map">
+                        <img src="<?php printf('%s/map.php?date=%s&type=%s', PROJ_ROOT_URL, $firstDate, $type); ?>"
+                             alt="<?php echo $name; ?>" class="map">
                     </article>
-                    <aside class="control">
-                        <?php $num = 0; ?>
-                        <datalist id="<?php echo $mapType; ?>_datalist">
-                            <?php foreach ($maps as $date => $map): ?>
+                    <form class="control">
+                        <datalist id="<?php echo $type; ?>_datalist" class="image-datalist">
+                            <?php $num = 0; ?>
+                            <?php foreach ($forecaster->getDates() as $date): ?>
                                 <option
-                                    value="<?php echo $map; ?>"
-                                    data-text="<?php echo date('l', $date); ?>"
-                                    data-index="<?php echo $num; ?>"
-                                    ></option>
+                                    value="<?php echo $num; ?>"
+                                    data-text="<?php echo strftime('%A', $date); ?>"
+                                    data-src="<?php printf(
+                                        '%s/map.php?date=%s&type=%s',
+                                        PROJ_ROOT_URL,
+                                        $date,
+                                        $type
+                                    ); ?>"
+                                    ><?php echo strftime('%A', $date); ?></option>
                                 <?php $num++; ?>
                             <?php endforeach; ?>
                         </datalist>
-                        <input type="range" class="date-slider" min="0" max="<?php echo $num - 1; ?>" step="1" value="0"
-                               list="<?php echo $mapType; ?>_datalist">
-                    </aside>
+                        <input type="range" name="<?php echo $type; ?>_slider" class="date-slider" min="0"
+                               max="<?php echo $num - 1; ?>" step="1" value="0"
+                               list="<?php echo $type; ?>_datalist">
+                    </form>
                 </li>
             <?php endforeach; ?>
         </ul>
     </div>
 </div>
-
 
 <!-- Scripts -->
 <script src="<?php echo PROJ_ROOT_URL; ?>/js/mootools-core-1.5.0.js"></script>

@@ -199,6 +199,7 @@ class Layer
      */
     public function getWidth()
     {
+        $this->width = $this->canvas->getWidth();
         return $this->width;
     }
 
@@ -208,6 +209,7 @@ class Layer
     public function setWidth($width)
     {
         $this->width = $width;
+        // todo resize canvas
     }
 
     /**
@@ -215,6 +217,7 @@ class Layer
      */
     public function getHeight()
     {
+        $this->height = $this->canvas->getHeight();
         return $this->height;
     }
 

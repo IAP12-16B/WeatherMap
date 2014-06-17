@@ -121,6 +121,7 @@ class Canvas
      */
     public function &getHeight()
     {
+        $this->height = imagesy($this->gdImage);
         return $this->height;
     }
 
@@ -129,6 +130,7 @@ class Canvas
      */
     public function &getWidth()
     {
+        $this->width = imagesx($this->gdImage);
         return $this->width;
     }
 
@@ -137,7 +139,7 @@ class Canvas
      */
     public function getJPEG()
     {
-        return $this->toImage(self::IMAGE_TYPE_JPEG, null, 0);
+        return $this->toImage(self::IMAGE_TYPE_JPEG, null, 100);
     }
 
     /**

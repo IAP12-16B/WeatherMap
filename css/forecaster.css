@@ -1,22 +1,107 @@
-/** Main */
-.inner-wrapper .maps li {
+/** http://colorschemedesigner.com/#3l31SoDvKp9tI */
+html, body {
+    font-size: 14px;
+    line-height: 1.15;
+    background-color: #FFF;
+}
+
+.outer-wrapper .main-header {
+    position: relative;
+    z-index: 100;
+    background-color: #268D9B;
+    font-size: 1.15em;
+    color: #FFF;
+}
+
+.outer-wrapper .main-header .main-nav,
+.outer-wrapper .inner-wrapper {
+    width: 1020px;
+    margin: 0 auto;
+}
+
+.outer-wrapper .main-header .main-nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+.outer-wrapper .main-header .main-nav ul li {
+    cursor: pointer;
+    display: inline-block;
+    padding: 1em 1.5em;
+    margin: 0;
+    border: none;
+    border-bottom: 4px solid transparent;
+    margin-bottom: -4px;
+
+    -webkit-transition: border 0.2s ease-in;
+    -moz-transition: border 0.2s ease-in;
+    -ms-transition: border 0.2s ease-in;
+    -o-transition: border 0.2s ease-in;
+    transition: border 0.2s ease-in;
+}
+
+.outer-wrapper .main-header .main-nav ul li.current,
+.outer-wrapper .main-header .main-nav ul li.current:hover {
+    border-bottom-color: #FD4D3A;
+}
+
+.outer-wrapper .main-header .main-nav ul li:hover {
+    border-bottom-color: #FDBE3A;
+}
+
+.outer-wrapper .main-header .main-nav ul li.current,
+.outer-wrapper .main-header .main-nav ul li.current:hover,
+.outer-wrapper .main-header .main-nav ul li:hover {
+    text-shadow: 1px 1px 15px rgba(255, 255, 255, 0.5);
+}
+
+.outer-wrapper .inner-wrapper {
+    margin-top: 3em;
+
+    border: 10px solid #FFF;
+    box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.3);
+}
+
+.outer-wrapper .inner-wrapper .maps li {
     display: none;
 }
 
-.inner-wrapper .maps li.current {
+.outer-wrapper .inner-wrapper .maps li.current {
     display: block;
 }
 
-.main-navi ul li {
-    cursor: pointer;
+.outer-wrapper .inner-wrapper .maps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
-.main-navi ul li.current,
-.main-navi ul li:hover {
-    background-color: red;
-}
-
-.inner-wrapper .maps li img {
-    width: 1000px;
+.outer-wrapper .inner-wrapper .maps .map {
+    display: block;
+    max-width: 100%;
+    margin: 0 auto;
     height: auto;
+}
+
+.outer-wrapper .inner-wrapper .maps .date-slider {
+    display: block;
+    width: 100%;
+}
+
+.outer-wrapper .inner-wrapper .maps .control {
+    margin: 2em auto 0;
+    width: 50%;
+    display: block;
+}
+
+.outer-wrapper .inner-wrapper .maps .control .slider-container {
+    padding: 1.5em 0 0;
+}
+
+.outer-wrapper .inner-wrapper .maps .control .slider-container .slider-caption {
+    top: 0;
+    text-align: center;
+    font-size: 0.8em;
 }
