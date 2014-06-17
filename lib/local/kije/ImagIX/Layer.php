@@ -93,6 +93,10 @@ class Layer
         $this->childLayers = array();
     }
 
+    /**
+     * @param $file
+     * @return Layer
+     */
     public static function fromFile($file)
     {
         $img = Canvas::fromFile($file);
@@ -229,6 +233,11 @@ class Layer
         $this->height = $height;
     }
 
+    /**
+     * @param $index
+     * @param $layer
+     * @throws Exception\LayerException
+     */
     public function addChildLayer($index, &$layer)
     {
         if (!array_key_exists($index, $this->childLayers)) {
@@ -240,6 +249,11 @@ class Layer
         }
     }
 
+    /**
+     * @param $index
+     * @param $layer
+     * @throws Exception\LayerException
+     */
     public function replaceChildLayer($index, &$layer)
     {
         if (array_key_exists($index, $this->childLayers)) {
@@ -249,6 +263,9 @@ class Layer
         }
     }
 
+    /**
+     * @param $index
+     */
     public function removeChildLayer($index)
     {
         if (array_key_exists($index, $this->childLayers)) {
@@ -258,6 +275,11 @@ class Layer
         }
     }
 
+    /**
+     * @param $method
+     * @param $args
+     * @return bool|mixed
+     */
     public function __call($method, $args)
     {
         // Delegate draw methods
@@ -268,6 +290,9 @@ class Layer
         return false;
     }
 
+    /**
+     *
+     */
     public function destroy()
     {
         $this->canvas->destroy();

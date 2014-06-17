@@ -264,7 +264,19 @@ class Canvas
         return $this->toImage(self::IMAGE_TYPE_GIF, $filename);
     }
 
+    /**
+     *
+     */
+    public function __destruct()
+    {
+        $this->destroy();
+    }
 
+    /**
+     * Destroys an image.
+     *
+     * ATTENTION: After calling this method, DO NOT use this object any longer. It may be corrupt
+     */
     public function destroy()
     {
         imagedestroy($this->gdImage);
@@ -293,6 +305,12 @@ class Canvas
         return $this;
     }
 
+    /**
+     * @param $mode
+     * @param float $threshold
+     * @param $color
+     * @return $this
+     */
     public function autocrop($mode = -1, $threshold = 0.5, $color = -1)
     {
         imagecropauto($this->gdImage, $mode, $threshold, $color);
@@ -697,6 +715,10 @@ class Canvas
         $this->drawText($fontSize, $text_x, $text_y + $text_height, $color, $fontfile, $text, $angle);
     }
 
+    /**
+     * @param $percentage
+     * @param $hundertPercent
+     */
     protected function convertPercentageToPixel(&$percentage, $hundertPercent)
     {
         if (is_string($percentage) && strpos($percentage, '%') !== false) {
@@ -724,6 +746,20 @@ class Canvas
         }
 
         return $this;
+    }
+
+    /**
+     * @param $fontSize
+     * @param $angle
+     * @param $x
+     * @param $y
+     * @param $color
+     * @param $fontfile
+     * @param $text
+     */
+    public function drawText($fontSize, $x, $y, $color, $fontfile, $text, $angle = 0)
+    {
+        imagettftext($this->gdImage, $fontSize, $angle, $x, $y, $color, $fontfile, $text);
     }
 
     /**
@@ -829,28 +865,8 @@ class Canvas
     }
 
     /**
-     * @param $fontSize
      * @param $angle
-     * @param $x
-     * @param $y
-     * @param $color
-     * @param $fontfile
-     * @param $text
      */
-    public function drawText($fontSize, $x, $y, $color, $fontfile, $text, $angle = 0)
-    {
-        imagettftext($this->gdImage, $fontSize, $angle, $x, $y, $color, $fontfile, $text);
-    }
-
-    /**
-     * @param $color
-     * @param $thickness
-     */
-    protected function prepareDraw($color, $thickness)
-    {
-
-    }
-
     public function rotate($angle)
     {
         $this->gdImage = imagerotate($this->gdImage, $angle, $this->colorTransparent());
@@ -858,5 +874,4 @@ class Canvas
         $this->height = imagesy($this->gdImage);
     }
 
-    // todo text etc...
 }

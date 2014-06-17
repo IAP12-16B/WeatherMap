@@ -3,6 +3,10 @@
 
 namespace kije\ImagIX;
 
+    /**
+     * Class Document
+     * @package kije\ImagIX
+     */
 /**
  * Class Document
  * @package kije\ImagIX
@@ -13,6 +17,11 @@ class Document
     private $height;
     private $rootLayer;
 
+    /**
+     * @param $width
+     * @param $height
+     * @param null $rootLayer
+     */
     public function __construct($width, $height, &$rootLayer = null)
     {
         if ($rootLayer) {
@@ -25,6 +34,10 @@ class Document
         $this->height = $height;
     }
 
+    /**
+     * @param $file
+     * @return Document
+     */
     public static function openFile($file)
     {
         $rLayer = Layer::fromFile($file);
@@ -56,18 +69,28 @@ class Document
         return $this->rootLayer;
     }
 
+    /**
+     * @return Canvas
+     */
     public function render()
     {
         return $this->rootLayer->render();
     }
 
+    /**
+     *
+     */
     public function __destruct()
     {
-        unset($this->rootLayer); // free
+        $this->destroy();
     }
 
+    /**
+     *
+     */
     public function destroy()
     {
         $this->rootLayer->destroy();
+        unset($this->rootLayer); // free
     }
 }
